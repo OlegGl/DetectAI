@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DetectAI</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+
+  <!-- Header: logo + enable toggle -->
+  <div class="header">
+    <div class="logo">🔍 <span>DetectAI</span></div>
+    <label class="toggle-switch" title="Enable / disable detection">
+      <input id="toggle-enabled" type="checkbox" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <!-- Setup CTA: shown when no backend is configured -->
+  <div id="setup-cta" class="setup-cta" style="display:none">
+    <p>Configure your AI backend to start detecting AI-generated content.</p>
+    <button id="btn-setup" class="btn btn-primary">&#9881; Open Settings</button>
+  </div>
+
+  <!-- Main content: shown when configured -->
+  <div id="main-content">
+
+    <!-- Status area -->
+    <div class="status-section">
+      <div id="status-scanning" class="status-scanning" style="display:none">
+        <div class="spinner"></div>
+        <span>Analyzing page&hellip;</span>
+      </div>
+      <div id="status-done" class="status-done" style="display:none">
+        <span id="status-text"></span>
+      </div>
+      <div id="status-idle" class="status-idle">Ready to scan</div>
+    </div>
+
+    <!-- Results: shown after a scan completes -->
+    <div id="results-section" style="display:none">
+
+      <!-- Human / AI ratio bar -->
+      <div class="results-summary">
+        <div class="ratio-bar">
+          <div id="ratio-human" class="ratio-human" style="width:50%"></div>
+          <div id="ratio-ai"    class="ratio-ai"    style="width:50%"></div>
+        </div>
+        <div class="ratio-labels">
+          <span id="label-human">Human</span>
+          <span id="label-ai">AI</span>
+        </div>
+      </div>
+
+      <!-- Top AI-detected paragraphs -->
+      <div id="results-list" class="results-list"></div>
+
+    </div>
+
+  </div>
+
+  <!-- Footer buttons -->
+  <div class="footer">
+    <button id="btn-scan"    class="btn btn-secondary">&#x21BA; Scan Now</button>
+    <button id="btn-clear"   class="btn btn-secondary">&#x2715; Clear</button>
+    <button id="btn-options" class="btn btn-secondary">&#9881; Options</button>
+  </div>
+
+  <script src="popup.js" defer></script>
+</body>
+</html>

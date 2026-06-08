@@ -1,0 +1,208 @@
+/* DetectAI Overlay Styles — injected into web pages */
+/* All rules use !important to override page styles without breaking layout */
+
+/* ─── AI-detected paragraph ─────────────────────────────────────────────── */
+
+.detectai-overlay-ai {
+  outline: 2px solid rgba(220, 38, 38, 0.75) !important;
+  outline-offset: 3px !important;
+  background-color: rgba(220, 38, 38, 0.04) !important;
+  border-radius: 2px !important;
+  position: relative !important;
+  transition: outline-color 0.15s ease, background-color 0.15s ease !important;
+}
+
+.detectai-overlay-ai:hover {
+  outline: 2px solid rgba(220, 38, 38, 0.95) !important;
+  background-color: rgba(220, 38, 38, 0.07) !important;
+  cursor: default !important;
+}
+
+/* ─── Ambiguous paragraph ────────────────────────────────────────────────── */
+
+.detectai-overlay-ambiguous {
+  outline: 1.5px solid rgba(251, 146, 60, 0.55) !important;
+  outline-offset: 3px !important;
+  background-color: rgba(251, 146, 60, 0.03) !important;
+  border-radius: 2px !important;
+  position: relative !important;
+  transition: outline-color 0.15s ease, background-color 0.15s ease !important;
+}
+
+.detectai-overlay-ambiguous:hover {
+  outline: 1.5px solid rgba(251, 146, 60, 0.85) !important;
+  background-color: rgba(251, 146, 60, 0.06) !important;
+  cursor: default !important;
+}
+
+/* ─── Scanning pulse animation ───────────────────────────────────────────── */
+
+@keyframes detectai-pulse {
+  0%   { outline-color: rgba(99, 102, 241, 0.25); }
+  50%  { outline-color: rgba(99, 102, 241, 0.60); }
+  100% { outline-color: rgba(99, 102, 241, 0.25); }
+}
+
+.detectai-scanning {
+  outline: 1.5px solid rgba(99, 102, 241, 0.25) !important;
+  outline-offset: 3px !important;
+  border-radius: 2px !important;
+  animation: detectai-pulse 1.6s ease-in-out infinite !important;
+}
+
+/* ─── Tooltip container ──────────────────────────────────────────────────── */
+
+.detectai-tooltip {
+  /* positioning is set inline by overlay-manager.js */
+  position: fixed !important;
+  z-index: 2147483647 !important;
+  max-width: 320px !important;
+  min-width: 220px !important;
+  padding: 12px 14px !important;
+  background: #1a1f2e !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.30) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  color: #e2e8f0 !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transform: translateY(4px) !important;
+  transition: opacity 0.15s ease, transform 0.15s ease !important;
+  box-sizing: border-box !important;
+}
+
+.detectai-tooltip * {
+  box-sizing: border-box !important;
+}
+
+.detectai-tooltip-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* ─── Tooltip header ─────────────────────────────────────────────────────── */
+
+.detectai-tooltip-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+}
+
+.detectai-tooltip-title {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #94a3b8 !important;
+}
+
+/* ─── Badge pills ────────────────────────────────────────────────────────── */
+
+.detectai-badge-ai {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 2px 8px !important;
+  background: rgba(220, 38, 38, 0.18) !important;
+  border: 1px solid rgba(220, 38, 38, 0.45) !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #fca5a5 !important;
+  white-space: nowrap !important;
+}
+
+.detectai-badge-ambiguous {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 2px 8px !important;
+  background: rgba(251, 146, 60, 0.15) !important;
+  border: 1px solid rgba(251, 146, 60, 0.40) !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #fed7aa !important;
+  white-space: nowrap !important;
+}
+
+/* ─── Confidence bar ─────────────────────────────────────────────────────── */
+
+.detectai-confidence-bar {
+  width: 100% !important;
+  height: 4px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  margin-bottom: 10px !important;
+}
+
+.detectai-confidence-fill {
+  height: 100% !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #fb923c 0%, #dc2626 100%) !important;
+  transition: width 0.3s ease !important;
+  min-width: 4px !important;
+}
+
+/* ─── Reasoning text ─────────────────────────────────────────────────────── */
+
+.detectai-reasoning {
+  font-size: 12px !important;
+  color: #94a3b8 !important;
+  line-height: 1.55 !important;
+  margin-bottom: 10px !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 4 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+/* ─── Signal tags ────────────────────────────────────────────────────────── */
+
+.detectai-signals {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+  margin-top: 2px !important;
+}
+
+.detectai-signal-tag {
+  display: inline-block !important;
+  padding: 2px 6px !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 4px !important;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", Menlo, monospace !important;
+  font-size: 10px !important;
+  color: #7dd3fc !important;
+  white-space: nowrap !important;
+  line-height: 1.6 !important;
+}
+
+/* ─── Confidence label ───────────────────────────────────────────────────── */
+
+.detectai-confidence-label {
+  font-size: 11px !important;
+  color: #64748b !important;
+  margin-bottom: 6px !important;
+}
+
+.detectai-confidence-value {
+  font-weight: 600 !important;
+  color: #e2e8f0 !important;
+}
+
+/* ─── Divider ────────────────────────────────────────────────────────────── */
+
+.detectai-divider {
+  height: 1px !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  margin: 8px 0 !important;
+  border: none !important;
+}

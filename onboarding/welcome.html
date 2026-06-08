@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome to DetectAI</title>
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: #0f1117;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px 60px;
+  }
+
+  /* ── Main container ── */
+  .wizard {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ── Logo header ── */
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #1e40af, #2563eb);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 18px;
+    color: #fff;
+    letter-spacing: -1px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  }
+
+  .brand-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: -0.3px;
+  }
+
+  .brand-name span {
+    color: #60a5fa;
+  }
+
+  /* ── Progress dots ── */
+  .progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+
+  .progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2d3447;
+    border: 2px solid #3b4563;
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+
+  .progress-dot.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    width: 24px;
+    border-radius: 4px;
+    box-shadow: 0 0 8px rgba(37, 99, 235, 0.5);
+  }
+
+  .progress-dot.done {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+  }
+
+  /* ── Step card ── */
+  .step {
+    display: none;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .step.active {
+    display: flex;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Step headings ── */
+  .step-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: -0.5px;
+    line-height: 1.25;
+  }
+
+  .step-subtitle {
+    font-size: 15px;
+    color: #94a3b8;
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  /* ── Feature list (step 1) ── */
+  .feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: #1a1f2e;
+    border: 1px solid #2d3447;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+  }
+
+  .feature-item:hover {
+    border-color: #3b4d72;
+  }
+
+  .feature-icon {
+    font-size: 22px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .feature-text h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 2px;
+  }
+
+  .feature-text p {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+
+  /* ── Backend cards (step 2) ── */
+  .backend-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .backend-card {
+    background: #1a1f2e;
+    border: 2px solid #2d3447;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    user-select: none;
+  }
+
+  .backend-card:hover {
+    border-color: #3b4d72;
+    background: #1e2638;
+  }
+
+  .backend-card.selected {
+    border-color: #2563eb;
+    background: #1a2540;
+    box-shadow: 0 0 0 1px #2563eb, 0 4px 16px rgba(37, 99, 235, 0.15);
+  }
+
+  .backend-card-icon {
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .backend-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
+
+  .backend-card-desc {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.4;
+  }
+
+  .backend-card .badge {
+    align-self: flex-start;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .badge-cloud {
+    background: rgba(37, 99, 235, 0.2);
+    color: #60a5fa;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+  }
+
+  .badge-local {
+    background: rgba(22, 163, 74, 0.2);
+    color: #4ade80;
+    border: 1px solid rgba(22, 163, 74, 0.3);
+  }
+
+  /* ── Config panels (step 2) ── */
+  .config-panel {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    background: #1a1f2e;
+    border: 1px solid #2d3447;
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .config-panel.active {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+  }
+
+  /* ── Form elements ── */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .form-input {
+    background: #0f1117;
+    border: 1px solid #2d3447;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 14px;
+    font-family: inherit;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+
+  .form-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+
+  .form-input::placeholder {
+    color: #3b4563;
+  }
+
+  .form-hint {
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.4;
+  }
+
+  .form-hint a {
+    color: #60a5fa;
+    text-decoration: none;
+  }
+
+  .form-hint a:hover {
+    text-decoration: underline;
+  }
+
+  /* ── Threshold slider ── */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .slider-row input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: #2d3447;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .slider-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #2563eb;
+    cursor: pointer;
+    box-shadow: 0 0 4px rgba(37, 99, 235, 0.5);
+  }
+
+  .slider-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #60a5fa;
+    min-width: 32px;
+    text-align: right;
+  }
+
+  /* ── Step 3 test panel ── */
+  .test-card {
+    background: #1a1f2e;
+    border: 1px solid #2d3447;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .test-card-icon {
+    font-size: 40px;
+    line-height: 1;
+  }
+
+  .test-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
+
+  .test-card p {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.6;
+    max-width: 340px;
+  }
+
+  .test-result {
+    width: 100%;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.4;
+    text-align: left;
+  }
+
+  .test-result.success {
+    display: flex;
+    background: rgba(22, 163, 74, 0.12);
+    border: 1px solid rgba(22, 163, 74, 0.3);
+    color: #4ade80;
+  }
+
+  .test-result.error {
+    display: flex;
+    background: rgba(220, 38, 38, 0.12);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    color: #f87171;
+  }
+
+  .test-result.info {
+    display: flex;
+    background: rgba(37, 99, 235, 0.12);
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    color: #60a5fa;
+  }
+
+  .test-result-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  /* ── Summary card (step 3) ── */
+  .summary-card {
+    background: #1a1f2e;
+    border: 1px solid #2d3447;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  .summary-row-label {
+    color: #64748b;
+  }
+
+  .summary-row-value {
+    color: #e2e8f0;
+    font-weight: 500;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    background: #0f1117;
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid #2d3447;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+    text-decoration: none;
+    -webkit-appearance: none;
+  }
+
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: #2563eb;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #1d4ed8;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    background: #1a1f2e;
+    color: #94a3b8;
+    border: 1px solid #2d3447;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: #1e2638;
+    color: #e2e8f0;
+    border-color: #3b4d72;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: #64748b;
+    border: 1px solid transparent;
+    padding: 10px 14px;
+  }
+
+  .btn-ghost:hover:not(:disabled) {
+    color: #94a3b8;
+    background: rgba(255,255,255,0.04);
+  }
+
+  .btn-success {
+    background: #16a34a;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+  }
+
+  .btn-success:hover:not(:disabled) {
+    background: #15803d;
+    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.4);
+    transform: translateY(-1px);
+  }
+
+  /* Loading spinner inside button */
+  .btn-spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  .btn.loading .btn-spinner {
+    display: inline-block;
+  }
+
+  .btn.loading .btn-label {
+    opacity: 0.7;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ── Navigation footer ── */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 8px;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+
+  /* ── Skip link ── */
+  .skip-link {
+    font-size: 12px;
+    color: #475569;
+    text-align: center;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 4px 0;
+    background: none;
+    border: none;
+    font-family: inherit;
+  }
+
+  .skip-link:hover {
+    color: #64748b;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: #2d3447;
+    margin: 4px 0;
+  }
+
+  /* ── Notice box ── */
+  .notice {
+    background: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #93c5fd;
+    line-height: 1.5;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .notice-icon {
+    flex-shrink: 0;
+    font-size: 15px;
+    margin-top: 1px;
+  }
+
+  /* ── Checkbox toggle ── */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 2px 0;
+  }
+
+  .toggle-row-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .toggle-row-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #e2e8f0;
+  }
+
+  .toggle-row-hint {
+    font-size: 11px;
+    color: #475569;
+  }
+
+  .toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: #2d3447;
+    border-radius: 11px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #64748b;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .toggle-switch input:checked + .toggle-slider {
+    background: #2563eb;
+  }
+
+  .toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+    background: #fff;
+  }
+</style>
+</head>
+<body>
+<div class="wizard">
+
+  <!-- Brand header -->
+  <div class="brand">
+    <div class="brand-icon">D</div>
+    <div class="brand-name">Detect<span>AI</span></div>
+  </div>
+
+  <!-- Progress indicator -->
+  <div class="progress" id="progressDots">
+    <div class="progress-dot active" data-step="0"></div>
+    <div class="progress-dot" data-step="1"></div>
+    <div class="progress-dot" data-step="2"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       STEP 1 — Welcome
+  ═══════════════════════════════════════════════ -->
+  <div class="step active" id="step-0">
+    <div>
+      <div class="step-title">Detect AI-generated<br>content as you browse</div>
+      <div class="step-subtitle">
+        DetectAI scans web pages and highlights paragraphs likely written by an AI,
+        right in your browser — privately and in real time.
+      </div>
+    </div>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-text">
+          <h3>Real-time paragraph scanning</h3>
+          <p>Every paragraph is analyzed as you scroll. Lazy-loaded and infinite-scroll content is caught too.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔴</div>
+        <div class="feature-text">
+          <h3>Subtle visual highlights</h3>
+          <p>AI-generated paragraphs get a thin red outline. Hover to see confidence score and reasoning.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-text">
+          <h3>Your key, your data</h3>
+          <p>Uses your own Anthropic API key or a local Ollama model. Text never goes to our servers.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-text">
+          <h3>Works on any website</h3>
+          <p>News articles, blog posts, social media, docs — scan any text-heavy page instantly.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <div></div>
+      <div class="nav-right">
+        <button class="btn btn-primary" id="btn-next-0">
+          <span class="btn-label">Get Started</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       STEP 2 — Configure Backend
+  ═══════════════════════════════════════════════ -->
+  <div class="step" id="step-1">
+    <div>
+      <div class="step-title">Choose your AI backend</div>
+      <div class="step-subtitle">
+        DetectAI needs an AI model to classify text. Pick the option that fits your setup.
+      </div>
+    </div>
+
+    <!-- Backend selection cards -->
+    <div class="backend-cards">
+      <div class="backend-card selected" id="card-anthropic">
+        <div class="backend-card-icon">☁️</div>
+        <div class="badge badge-cloud">Cloud</div>
+        <div class="backend-card-title">Anthropic API</div>
+        <div class="backend-card-desc">Uses Claude Sonnet via your own API key. Fast and accurate.</div>
+      </div>
+      <div class="backend-card" id="card-ollama">
+        <div class="backend-card-icon">🦙</div>
+        <div class="badge badge-local">Local</div>
+        <div class="backend-card-title">Ollama</div>
+        <div class="backend-card-desc">Runs locally on your machine. No API key, fully private.</div>
+      </div>
+    </div>
+
+    <!-- Anthropic config panel -->
+    <div class="config-panel active" id="panel-anthropic">
+      <div class="form-group">
+        <label class="form-label" for="apiKeyInput">Anthropic API Key</label>
+        <input
+          class="form-input"
+          id="apiKeyInput"
+          type="password"
+          placeholder="sk-ant-api03-..."
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <div class="form-hint">
+          Get your key at <a href="https://console.anthropic.com/account/keys" target="_blank">console.anthropic.com</a>.
+          Stored locally in your browser — never shared.
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <div class="form-label">Detection Threshold</div>
+        <div class="slider-row">
+          <input type="range" id="thresholdSlider" min="0.40" max="0.95" step="0.05" value="0.65">
+          <span class="slider-value" id="thresholdValue">65%</span>
+        </div>
+        <div class="form-hint">Minimum confidence to flag a paragraph as AI-generated. Lower = more sensitive.</div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-row-text">
+          <div class="toggle-row-label">Auto-scan on page load</div>
+          <div class="toggle-row-hint">Scan automatically when you open a page</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="autoScanToggle" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-row-text">
+          <div class="toggle-row-label">Show reasoning in tooltips</div>
+          <div class="toggle-row-hint">Display AI's explanation on hover</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="showReasoningToggle" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Ollama config panel -->
+    <div class="config-panel" id="panel-ollama">
+      <div class="notice">
+        <span class="notice-icon">ℹ️</span>
+        <span>Make sure <strong>Ollama</strong> is running on your machine before continuing.
+        Download it at <a href="https://ollama.com" target="_blank" style="color:#93c5fd">ollama.com</a>.</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="ollamaUrlInput">Ollama Server URL</label>
+        <input
+          class="form-input"
+          id="ollamaUrlInput"
+          type="text"
+          value="http://localhost:11434"
+          placeholder="http://localhost:11434"
+          spellcheck="false"
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="ollamaModelInput">Model Name</label>
+        <input
+          class="form-input"
+          id="ollamaModelInput"
+          type="text"
+          value="qwen2.5:3b"
+          placeholder="qwen2.5:3b"
+          spellcheck="false"
+        >
+        <div class="form-hint">
+          Must be pulled first: <code style="background:#0f1117;padding:1px 5px;border-radius:3px;font-size:11px;">ollama pull qwen2.5:3b</code>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <div class="form-label">Detection Threshold</div>
+        <div class="slider-row">
+          <input type="range" id="thresholdSliderOllama" min="0.40" max="0.95" step="0.05" value="0.65">
+          <span class="slider-value" id="thresholdValueOllama">65%</span>
+        </div>
+        <div class="form-hint">Minimum confidence to flag a paragraph as AI-generated.</div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-row-text">
+          <div class="toggle-row-label">Auto-scan on page load</div>
+          <div class="toggle-row-hint">Scan automatically when you open a page</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="autoScanToggleOllama" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-ghost" id="btn-back-1">← Back</button>
+      <div class="nav-right">
+        <button class="btn btn-ghost skip-link" id="btn-skip">Skip for now</button>
+        <button class="btn btn-primary" id="step2NextBtn">
+          <span class="btn-label">Continue</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       STEP 3 — Test & Finish
+  ═══════════════════════════════════════════════ -->
+  <div class="step" id="step-2">
+    <div>
+      <div class="step-title">Test your connection</div>
+      <div class="step-subtitle">
+        Verify that DetectAI can reach the AI backend before you start browsing.
+      </div>
+    </div>
+
+    <!-- Config summary -->
+    <div class="summary-card" id="configSummary">
+      <div class="summary-row">
+        <span class="summary-row-label">Backend</span>
+        <span class="summary-row-value" id="summaryBackend">Anthropic API</span>
+      </div>
+      <div class="summary-row" id="summaryKeyRow">
+        <span class="summary-row-label">API Key</span>
+        <span class="summary-row-value" id="summaryKey">•••••••••••••</span>
+      </div>
+      <div class="summary-row" id="summaryUrlRow" style="display:none">
+        <span class="summary-row-label">Server URL</span>
+        <span class="summary-row-value" id="summaryUrl">http://localhost:11434</span>
+      </div>
+      <div class="summary-row" id="summaryModelRow" style="display:none">
+        <span class="summary-row-label">Model</span>
+        <span class="summary-row-value" id="summaryModel">qwen2.5:3b</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-row-label">Threshold</span>
+        <span class="summary-row-value" id="summaryThreshold">65%</span>
+      </div>
+    </div>
+
+    <!-- Test card -->
+    <div class="test-card">
+      <div class="test-card-icon">🔌</div>
+      <h3>Ready to test</h3>
+      <p>
+        Click the button below to send a test request and confirm your configuration is working correctly.
+      </p>
+
+      <div class="test-result" id="testResult">
+        <span class="test-result-icon" id="testResultIcon"></span>
+        <span id="testResultText"></span>
+      </div>
+
+      <button class="btn btn-secondary" id="testBtn">
+        <span class="btn-spinner"></span>
+        <span class="btn-label">Test Connection</span>
+      </button>
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-ghost" id="btn-back-2">← Back</button>
+      <div class="nav-right">
+        <button class="btn btn-success" id="finishBtn">
+          <span class="btn-label">Finish Setup ✓</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.wizard -->
+<script src="welcome.js"></script>
+</body>
+</html>

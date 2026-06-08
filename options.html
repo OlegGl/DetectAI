@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DetectAI Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+<div class="container">
+  <h1 class="page-title">DetectAI Settings</h1>
+
+  <!-- ── BACKEND SECTION ── -->
+  <div class="section-card">
+    <div class="section-title">Detection Backend</div>
+    <div class="backend-options">
+      <div class="backend-card" id="card-anthropic" data-backend="anthropic">
+        <div class="backend-name">Anthropic Claude API</div>
+        <div class="backend-desc">High accuracy. Requires API key from your Claude account.</div>
+        <div class="backend-tag recommended">Recommended</div>
+      </div>
+      <div class="backend-card" id="card-ollama" data-backend="ollama">
+        <div class="backend-name">Ollama (Local)</div>
+        <div class="backend-desc">Free, private. Runs locally on your machine. Install Ollama first.</div>
+        <div class="backend-tag local">Local &amp; Private</div>
+      </div>
+    </div>
+
+    <!-- Anthropic config -->
+    <div id="anthropic-config">
+      <div class="input-group">
+        <label for="api-key">API Key</label>
+        <input type="password" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
+        <div class="input-hint">
+          Get your key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>
+          (requires Claude Pro or API access)
+        </div>
+      </div>
+      <button class="test-btn" id="test-anthropic" type="button">Test Connection</button>
+      <span class="test-result" id="test-anthropic-result"></span>
+    </div>
+
+    <!-- Ollama config -->
+    <div id="ollama-config" style="display:none">
+      <div class="input-group">
+        <label for="ollama-url">Ollama URL</label>
+        <input type="text" id="ollama-url" value="http://localhost:11434" spellcheck="false">
+      </div>
+      <div class="input-group">
+        <label for="ollama-model">Model</label>
+        <input type="text" id="ollama-model" placeholder="qwen2.5:3b" spellcheck="false">
+        <div class="input-hint">Recommended: qwen2.5:3b (fast) or a larger model for more accuracy</div>
+      </div>
+      <button class="test-btn" id="test-ollama" type="button">Test Connection</button>
+      <span class="test-result" id="test-ollama-result"></span>
+    </div>
+  </div>
+
+  <!-- ── DETECTION SETTINGS ── -->
+  <div class="section-card">
+    <div class="section-title">Detection Settings</div>
+
+    <div class="input-group">
+      <label for="threshold">Confidence Threshold: <strong id="threshold-display">65%</strong></label>
+      <input type="range" id="threshold" min="30" max="95" step="5" value="65" aria-valuemin="30" aria-valuemax="95" aria-valuenow="65">
+      <div class="input-hint">Only highlight text with AI confidence above this level. Lower = more sensitive.</div>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Auto-scan on page load</div>
+        <div class="toggle-desc">Automatically scan pages when you visit them</div>
+      </div>
+      <label class="toggle-switch" aria-label="Auto-scan on page load">
+        <input type="checkbox" id="auto-scan" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Show reasoning tooltips</div>
+        <div class="toggle-desc">Hover over highlighted text to see why it was flagged</div>
+      </div>
+      <label class="toggle-switch" aria-label="Show reasoning tooltips">
+        <input type="checkbox" id="show-reasoning" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Highlight ambiguous text</div>
+        <div class="toggle-desc">Show orange border on text with 50–65% AI confidence</div>
+      </div>
+      <label class="toggle-switch" aria-label="Highlight ambiguous text">
+        <input type="checkbox" id="highlight-ambiguous">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Debug mode</div>
+        <div class="toggle-desc">Verbose on-page log — click the status badge (bottom-left) to open it. Shows text sent, model, timings, and responses.</div>
+      </div>
+      <label class="toggle-switch" aria-label="Debug mode">
+        <input type="checkbox" id="debug-mode">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ── ABOUT ── -->
+  <div class="section-card">
+    <div class="section-title">About</div>
+    <p class="about-text">DetectAI v1.0.0 — AI Text Detection for Chrome</p>
+    <p class="about-privacy">&#x1F512; Privacy: Your text is sent only to the backend you configure (Anthropic or local Ollama). No data is sent to DetectAI servers. Your API key is stored locally in your browser.</p>
+  </div>
+</div>
+
+<!-- Fixed save bar -->
+<div class="save-bar">
+  <button class="btn-reset" id="btn-reset" type="button">Reset Defaults</button>
+  <button class="btn-save" id="btn-save" type="button">Save Settings</button>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast" style="display:none" role="status" aria-live="polite">Settings saved!</div>
+
+<script src="options.js"></script>
+</body>
+</html>
