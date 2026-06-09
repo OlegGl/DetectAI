@@ -48,8 +48,8 @@
       </div>
       <div class="input-group">
         <label for="ollama-model">Model</label>
-        <input type="text" id="ollama-model" placeholder="qwen2.5:3b" spellcheck="false">
-        <div class="input-hint">Recommended: qwen2.5:3b (fast) or a larger model for more accuracy</div>
+        <input type="text" id="ollama-model" placeholder="qwen2.5:7b" spellcheck="false">
+        <div class="input-hint">Recommended: qwen2.5:7b (good accuracy). qwen2.5:3b is faster but less accurate.</div>
       </div>
       <button class="test-btn" id="test-ollama" type="button">Test Connection</button>
       <span class="test-result" id="test-ollama-result"></span>
@@ -61,8 +61,8 @@
     <div class="section-title">Detection Settings</div>
 
     <div class="input-group">
-      <label for="threshold">Confidence Threshold: <strong id="threshold-display">65%</strong></label>
-      <input type="range" id="threshold" min="30" max="95" step="5" value="65" aria-valuemin="30" aria-valuemax="95" aria-valuenow="65">
+      <label for="threshold">Confidence Threshold: <strong id="threshold-display">70%</strong></label>
+      <input type="range" id="threshold" min="30" max="95" step="5" value="70" aria-valuemin="30" aria-valuemax="95" aria-valuenow="70">
       <div class="input-hint">Only highlight text with AI confidence above this level. Lower = more sensitive.</div>
     </div>
 

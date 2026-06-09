@@ -6,8 +6,8 @@ const DEFAULT_SETTINGS = {
   apiBackend: 'ollama',
   anthropicApiKey: '',
   ollamaUrl: 'http://localhost:11434',
-  ollamaModel: 'qwen2.5:3b',
-  detectionThreshold: 0.65,
+  ollamaModel: 'qwen2.5:7b',
+  detectionThreshold: 0.70,
   autoScan: true,
   enabled: true,
   showReasoning: true,
@@ -45,7 +45,7 @@ function populateForm(settings) {
   // Credential inputs
   document.getElementById('api-key').value = settings.anthropicApiKey || '';
   document.getElementById('ollama-url').value = settings.ollamaUrl || 'http://localhost:11434';
-  document.getElementById('ollama-model').value = settings.ollamaModel || 'qwen2.5:3b';
+  document.getElementById('ollama-model').value = settings.ollamaModel || 'qwen2.5:7b';
 
   // Threshold slider
   const thresholdPct = Math.round((settings.detectionThreshold ?? 0.65) * 100);
@@ -157,7 +157,7 @@ async function testConnection(backend) {
           type: 'TEST_CONNECTION',
           backend: 'ollama',
           ollamaUrl: document.getElementById('ollama-url').value.trim() || 'http://localhost:11434',
-          ollamaModel: document.getElementById('ollama-model').value.trim() || 'qwen2.5:3b',
+          ollamaModel: document.getElementById('ollama-model').value.trim() || 'qwen2.5:7b',
         };
 
   try {
@@ -228,7 +228,7 @@ async function saveSettings() {
     apiBackend: selectedBackend,
     anthropicApiKey: document.getElementById('api-key').value.trim(),
     ollamaUrl: document.getElementById('ollama-url').value.trim() || 'http://localhost:11434',
-    ollamaModel: document.getElementById('ollama-model').value.trim() || 'qwen2.5:3b',
+    ollamaModel: document.getElementById('ollama-model').value.trim() || 'qwen2.5:7b',
     detectionThreshold: parseInt(document.getElementById('threshold').value, 10) / 100,
     autoScan: document.getElementById('auto-scan').checked,
     enabled: priorEnabled,

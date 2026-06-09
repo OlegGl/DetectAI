@@ -421,26 +421,33 @@
         ? settings.detectionThreshold
         : 0.65;
 
-      if (result.label === 'ai' && result.confidence >= threshold) {
+      // `confidence` is uniformly P(AI) (0..1). The threshold is the single
+      // control: outline red at/above it; orange in the ambiguous band below it
+      // (opt-in). skip/insufficient never get an overlay.
+      const pAI = result.confidence;
+      const skip = result.label === 'skip' || result.label === 'insufficient';
+
+      if (!skip && pAI >= threshold) {
         el.classList.add(AI_CLASS);
         entry.overlayActive = true;
-        el.dataset.detectaiConfidence = result.confidence.toFixed(2);
-        el.dataset.detectaiLabel = result.label;
-
+        entry.displayKind = 'ai';
+        el.dataset.detectaiConfidence = pAI.toFixed(2);
+        el.dataset.detectaiLabel = 'ai';
         if (settings && settings.showReasoning) {
-          setupTooltip(result.id, entry, result);
+          setupTooltip(result.id, entry, result, 'ai');
         }
-      } else if (
-        result.label === 'ambiguous' &&
-        settings &&
-        settings.highlightAmbiguous &&
-        result.confidence >= 0.5
-      ) {
+      } else if (!skip && settings && settings.highlightAmbiguous && pAI >= 0.5) {
         el.classList.add(AMB_CLASS);
         entry.overlayActive = true;
-        el.dataset.detectaiLabel = result.label;
+        entry.displayKind = 'ambiguous';
+        el.dataset.detectaiConfidence = pAI.toFixed(2);
+        el.dataset.detectaiLabel = 'ambiguous';
+        if (settings && settings.showReasoning) {
+          setupTooltip(result.id, entry, result, 'ambiguous');
+        }
       } else {
         entry.overlayActive = false;
+        entry.displayKind = null;
         delete el.dataset.detectaiConfidence;
         delete el.dataset.detectaiLabel;
       }
@@ -455,10 +462,10 @@
       const r = entry.result;
       if (!r || r.label === 'skip' || r.label === 'insufficient') continue;
       total++;
-      // Count what is actually outlined on the page (overlayActive reflects the
+      // Count what is actually outlined on the page (displayKind reflects the
       // current threshold + highlightAmbiguous settings).
-      if (entry.overlayActive && r.label === 'ai') ai++;
-      else if (entry.overlayActive && r.label === 'ambiguous') amb++;
+      if (entry.overlayActive && entry.displayKind === 'ai') ai++;
+      else if (entry.overlayActive && entry.displayKind === 'ambiguous') amb++;
     }
     fabStats.totalScanned = total;
     fabStats.aiFound = ai;
@@ -483,13 +490,13 @@
     }, { passive: true });
   }
 
-  function setupTooltip(id, entry, result) {
+  function setupTooltip(id, entry, result, kind) {
     // Tear down any previous tooltip + its listeners for this entry first.
     teardownTooltip(entry);
 
     const tooltip = document.createElement('div');
     tooltip.className = TOOLTIP_CLASS;
-    tooltip.innerHTML = buildTooltipHTML(result);
+    tooltip.innerHTML = buildTooltipHTML(result, kind);
     document.body.appendChild(tooltip);
     entry.tooltipEl = tooltip;
 
@@ -530,7 +537,8 @@
     }
   }
 
-  function buildTooltipHTML(result) {
+  function buildTooltipHTML(result, kind) {
+    // confidence is P(AI); show it as the AI-likelihood percentage.
     const pct = Math.round(result.confidence * 100);
     const signalsHtml = (result.signals || [])
       .map(function (s) {
@@ -538,7 +546,7 @@
       })
       .join('');
 
-    const isAi = result.label === 'ai';
+    const isAi = kind !== 'ambiguous';
     const labelColor = isAi ? '#dc2626' : '#f97316';
     const labelText = isAi ? 'AI DETECTED' : 'AMBIGUOUS';
     const badgeClass = isAi ? 'detectai-badge-ai' : 'detectai-badge-ambiguous';
@@ -546,7 +554,7 @@
     return (
       '<div class="detectai-tooltip-header">' +
         '<span class="' + badgeClass + '">' + labelText + '</span>' +
-        '<span style="color:#94a3b8;font-size:12px;margin-left:auto;">' + pct + '% confidence</span>' +
+        '<span style="color:#94a3b8;font-size:12px;margin-left:auto;">' + pct + '% AI-likelihood</span>' +
       '</div>' +
       '<div class="detectai-confidence-bar">' +
         '<div class="detectai-confidence-fill" style="width:' + pct + '%;background:' + labelColor + '"></div>' +
@@ -788,7 +796,7 @@
     if (settings) {
       fabStats.backend = settings.apiBackend || 'anthropic';
       fabStats.model = settings.apiBackend === 'ollama'
-        ? (settings.ollamaModel || 'qwen2.5:3b')
+        ? (settings.ollamaModel || 'qwen2.5:7b')
         : 'claude-sonnet-4-6';
     }
   }
@@ -1137,7 +1145,7 @@
       // Keep the FAB's model/backend labels in sync with the new settings.
       fabStats.backend = settings.apiBackend || fabStats.backend;
       fabStats.model = settings.apiBackend === 'ollama'
-        ? (settings.ollamaModel || 'qwen2.5:3b')
+        ? (settings.ollamaModel || 'qwen2.5:7b')
         : 'claude-sonnet-4-6';
       updateFabDebugAffordance();
       logDebug('info', 'settings changed', {

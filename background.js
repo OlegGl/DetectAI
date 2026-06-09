@@ -19,8 +19,8 @@ const DEFAULT_SETTINGS = {
   apiBackend: 'ollama',
   anthropicApiKey: '',
   ollamaUrl: 'http://localhost:11434',
-  ollamaModel: 'qwen2.5:3b',
-  detectionThreshold: 0.65,
+  ollamaModel: 'qwen2.5:7b',
+  detectionThreshold: 0.70,
   autoScan: true,
   enabled: true,
   showReasoning: true,
@@ -103,21 +103,27 @@ async function saveSettings(settings) {
   await chrome.storage.local.set({ [SETTINGS_KEY]: settings });
 }
 
-// One-time migration: move existing installs off the slow gemma defaults onto
-// the fast small default model. Narrow by design — only the prior default
-// values are touched, never a genuinely custom user choice. Runs once.
+// One-time migration: move existing installs off the prior default models onto
+// the current default (qwen2.5:7b — better accuracy than 3b, far faster than the
+// 31B). Narrow by design — only prior default values are touched, never a
+// genuinely custom user choice. Runs once (V2).
+const PRIOR_DEFAULT_MODELS = new Set(['gemma4', 'gemma4:31b-mlx', 'qwen2.5:3b']);
+
 async function migrateSettings() {
   try {
     const stored = await chrome.storage.local.get(SETTINGS_KEY);
     const s = stored[SETTINGS_KEY];
-    if (!s || s.modelMigratedV1) return; // fresh install already uses the new default
-    if (
-      s.apiBackend === 'ollama' &&
-      (s.ollamaModel === 'gemma4' || s.ollamaModel === 'gemma4:31b-mlx' || !s.ollamaModel)
-    ) {
-      s.ollamaModel = 'qwen2.5:3b';
+    if (!s || s.modelMigratedV2) return; // fresh install already uses the new default
+    if (s.apiBackend === 'ollama' && (!s.ollamaModel || PRIOR_DEFAULT_MODELS.has(s.ollamaModel))) {
+      s.ollamaModel = 'qwen2.5:7b';
     }
-    s.modelMigratedV1 = true;
+    // Nudge the prior default threshold up to the new, more conservative default
+    // (only if untouched) — reduces false positives now that confidence is
+    // calibrated as a true P(AI).
+    if (s.detectionThreshold === 0.65) {
+      s.detectionThreshold = 0.70;
+    }
+    s.modelMigratedV2 = true;
     await chrome.storage.local.set({ [SETTINGS_KEY]: s });
   } catch (err) {
     console.error('[DetectAI] migrateSettings error:', err);
@@ -215,7 +221,7 @@ function withTabLock(tabId, fn) {
  *
  * Definitions (kept consistent with the on-page overlays):
  *   totalScanned = segments actually analyzed (excludes skip / insufficient)
- *   aiCount      = segments labeled "ai" at or above the confidence threshold
+ *   aiCount      = segments whose P(AI) confidence is at or above the threshold
  */
 async function appendResults(tabId, url, newResults, settings) {
   return withTabLock(tabId, async () => {
@@ -235,7 +241,7 @@ async function appendResults(tabId, url, newResults, settings) {
     ).length;
 
     const aiCount = merged.filter(
-      (r) => r.label === 'ai' && r.confidence >= threshold
+      (r) => r.label !== 'skip' && r.label !== 'insufficient' && r.confidence >= threshold
     ).length;
 
     const nextState = {

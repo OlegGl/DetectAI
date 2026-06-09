@@ -234,7 +234,7 @@
     } else {
       summaryBackend.textContent = 'Ollama (Local)';
       summaryUrl.textContent = ollamaUrlInput ? ollamaUrlInput.value.trim() : 'http://localhost:11434';
-      summaryModel.textContent = ollamaModelInput ? ollamaModelInput.value.trim() : 'qwen2.5:3b';
+      summaryModel.textContent = ollamaModelInput ? ollamaModelInput.value.trim() : 'qwen2.5:7b';
       summaryKeyRow.style.display = 'none';
       summaryUrlRow.style.display = '';
       summaryModelRow.style.display = '';
@@ -304,7 +304,7 @@
   function buildTestPayload() {
     var key = apiKeyInput ? apiKeyInput.value.trim() : '';
     var url = ollamaUrlInput ? ollamaUrlInput.value.trim() : 'http://localhost:11434';
-    var model = ollamaModelInput ? ollamaModelInput.value.trim() : 'qwen2.5:3b';
+    var model = ollamaModelInput ? ollamaModelInput.value.trim() : 'qwen2.5:7b';
 
     return {
       type: 'TEST_CONNECTION',
@@ -374,7 +374,7 @@
       apiBackend: selectedBackend,
       anthropicApiKey: apiKeyInput ? apiKeyInput.value.trim() : '',
       ollamaUrl: ollamaUrlInput ? ollamaUrlInput.value.trim() : 'http://localhost:11434',
-      ollamaModel: ollamaModelInput ? ollamaModelInput.value.trim() : 'qwen2.5:3b',
+      ollamaModel: ollamaModelInput ? ollamaModelInput.value.trim() : 'qwen2.5:7b',
       detectionThreshold: isNaN(threshold) ? 0.65 : threshold,
       autoScan: finalAutoScan,
       enabled: true,

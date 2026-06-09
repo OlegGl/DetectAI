@@ -805,8 +805,8 @@
       <div class="form-group">
         <div class="form-label">Detection Threshold</div>
         <div class="slider-row">
-          <input type="range" id="thresholdSlider" min="0.40" max="0.95" step="0.05" value="0.65">
-          <span class="slider-value" id="thresholdValue">65%</span>
+          <input type="range" id="thresholdSlider" min="0.40" max="0.95" step="0.05" value="0.70">
+          <span class="slider-value" id="thresholdValue">70%</span>
         </div>
         <div class="form-hint">Minimum confidence to flag a paragraph as AI-generated. Lower = more sensitive.</div>
       </div>
@@ -860,12 +860,12 @@
           class="form-input"
           id="ollamaModelInput"
           type="text"
-          value="qwen2.5:3b"
-          placeholder="qwen2.5:3b"
+          value="qwen2.5:7b"
+          placeholder="qwen2.5:7b"
           spellcheck="false"
         >
         <div class="form-hint">
-          Must be pulled first: <code style="background:#0f1117;padding:1px 5px;border-radius:3px;font-size:11px;">ollama pull qwen2.5:3b</code>
+          Must be pulled first: <code style="background:#0f1117;padding:1px 5px;border-radius:3px;font-size:11px;">ollama pull qwen2.5:7b</code>
         </div>
       </div>
 
@@ -874,8 +874,8 @@
       <div class="form-group">
         <div class="form-label">Detection Threshold</div>
         <div class="slider-row">
-          <input type="range" id="thresholdSliderOllama" min="0.40" max="0.95" step="0.05" value="0.65">
-          <span class="slider-value" id="thresholdValueOllama">65%</span>
+          <input type="range" id="thresholdSliderOllama" min="0.40" max="0.95" step="0.05" value="0.70">
+          <span class="slider-value" id="thresholdValueOllama">70%</span>
         </div>
         <div class="form-hint">Minimum confidence to flag a paragraph as AI-generated.</div>
       </div>
@@ -931,11 +931,11 @@
       </div>
       <div class="summary-row" id="summaryModelRow" style="display:none">
         <span class="summary-row-label">Model</span>
-        <span class="summary-row-value" id="summaryModel">qwen2.5:3b</span>
+        <span class="summary-row-value" id="summaryModel">qwen2.5:7b</span>
       </div>
       <div class="summary-row">
         <span class="summary-row-label">Threshold</span>
-        <span class="summary-row-value" id="summaryThreshold">65%</span>
+        <span class="summary-row-value" id="summaryThreshold">70%</span>
       </div>
     </div>
 
