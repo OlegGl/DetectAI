@@ -16,13 +16,7 @@
       "all_frames": false
     }
   ],
-  "web_accessible_resources": [
-    {
-      "resources": ["styles/overlay.css"],
-      "matches": ["<all_urls>"]
-    }
-  ],
-  "permissions": ["storage", "unlimitedStorage", "alarms", "tabs", "scripting", "activeTab", "declarativeNetRequestWithHostAccess"],
+  "permissions": ["storage", "unlimitedStorage", "alarms", "tabs", "declarativeNetRequestWithHostAccess"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html",

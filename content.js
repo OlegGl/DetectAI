@@ -163,8 +163,11 @@
         if (hasBlockChildElement(node)) return NodeFilter.FILTER_SKIP;
 
         // ── Text filters via textContent (no reflow) ───────────────────────
+        // Long blocks are TRUNCATED for analysis, not skipped — silently
+        // dropping >3500-char paragraphs was a false-negative hole (a long AI
+        // essay block would never be scanned at all).
         const text = getTextContent(node);
-        if (text.length < MIN_TEXT_LEN || text.length > MAX_TEXT_LEN) return NodeFilter.FILTER_SKIP;
+        if (text.length < MIN_TEXT_LEN) return NodeFilter.FILTER_SKIP;
         if (!hasEnoughWords(text)) return NodeFilter.FILTER_SKIP;
         if (isCodeLike(text)) return NodeFilter.FILTER_SKIP;
 
@@ -175,7 +178,7 @@
           return NodeFilter.FILTER_REJECT;
         }
 
-        textCache.set(node, text);
+        textCache.set(node, text.slice(0, MAX_TEXT_LEN));
         return NodeFilter.FILTER_ACCEPT;
       }
     });
@@ -186,7 +189,7 @@
       node.dataset.detectaiId = id;
       registry.set(id, {
         element: node,
-        text: textCache.get(node) || getTextContent(node),
+        text: textCache.get(node) || getTextContent(node).slice(0, MAX_TEXT_LEN),
         result: null,
         overlayActive: false,
         tooltipEl: null
@@ -419,7 +422,7 @@
 
       const threshold = (settings && settings.detectionThreshold != null)
         ? settings.detectionThreshold
-        : 0.65;
+        : 0.70;
 
       // `confidence` is uniformly P(AI) (0..1). The threshold is the single
       // control: outline red at/above it; orange in the ambiguous band below it
@@ -1196,6 +1199,9 @@
       if (settings && settings.enabled) {
         const ids = extractParagraphs(getScanRoot());
         scheduleIds(ids);
+        // Manual scan also wires the observers — needed when auto-scan is off
+        // and init() skipped them.
+        startObservation();
       }
       sendResponse({ ok: true });
       return true;
@@ -1224,109 +1230,6 @@
     }
   });
 
-  // ─── INJECT STYLES ────────────────────────────────────────────────────────────
-
-  function injectStyles() {
-    const styleId = 'detectai-injected-styles';
-    if (document.getElementById(styleId)) return;
-
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = [
-      '.' + AI_CLASS + ' {',
-      '  outline: 2px solid rgba(220,38,38,0.75) !important;',
-      '  outline-offset: 3px !important;',
-      '  background-color: rgba(220,38,38,0.04) !important;',
-      '  border-radius: 2px;',
-      '  transition: outline 0.2s ease, background-color 0.2s ease;',
-      '}',
-      '.' + AMB_CLASS + ' {',
-      '  outline: 1.5px solid rgba(251,146,60,0.55) !important;',
-      '  outline-offset: 3px !important;',
-      '  background-color: rgba(251,146,60,0.03) !important;',
-      '  border-radius: 2px;',
-      '  transition: outline 0.2s ease, background-color 0.2s ease;',
-      '}',
-      '.' + SCAN_CLASS + ' {',
-      '  opacity: 0.7;',
-      '  transition: opacity 0.3s ease;',
-      '}',
-      '.' + TOOLTIP_CLASS + ' {',
-      '  position: absolute;',
-      '  z-index: 2147483647;',
-      '  width: 320px;',
-      '  background: #1e293b;',
-      '  color: #f1f5f9;',
-      '  border-radius: 8px;',
-      '  padding: 12px 14px;',
-      '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;',
-      '  font-size: 13px;',
-      '  line-height: 1.5;',
-      '  box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3);',
-      '  opacity: 0;',
-      '  pointer-events: none;',
-      '  transition: opacity 0.15s ease;',
-      '  border: 1px solid rgba(255,255,255,0.08);',
-      '}',
-      '.' + TOOLTIP_CLASS + '.' + TOOLTIP_VIS + ' {',
-      '  opacity: 1;',
-      '}',
-      '.detectai-tooltip-header {',
-      '  display: flex;',
-      '  align-items: center;',
-      '  gap: 8px;',
-      '  margin-bottom: 8px;',
-      '}',
-      '.detectai-badge-ai {',
-      '  background: #dc2626;',
-      '  color: #fff;',
-      '  font-size: 10px;',
-      '  font-weight: 700;',
-      '  letter-spacing: 0.06em;',
-      '  padding: 2px 7px;',
-      '  border-radius: 3px;',
-      '  text-transform: uppercase;',
-      '}',
-      '.detectai-confidence-bar {',
-      '  height: 4px;',
-      '  background: rgba(255,255,255,0.1);',
-      '  border-radius: 2px;',
-      '  margin-bottom: 10px;',
-      '  overflow: hidden;',
-      '}',
-      '.detectai-confidence-fill {',
-      '  height: 100%;',
-      '  background: #dc2626;',
-      '  border-radius: 2px;',
-      '  transition: width 0.4s ease;',
-      '}',
-      '.detectai-reasoning {',
-      '  font-size: 12px;',
-      '  color: #cbd5e1;',
-      '  line-height: 1.6;',
-      '  margin-bottom: 8px;',
-      '  max-height: 120px;',
-      '  overflow-y: auto;',
-      '}',
-      '.detectai-signals {',
-      '  display: flex;',
-      '  flex-wrap: wrap;',
-      '  gap: 4px;',
-      '  margin-top: 6px;',
-      '}',
-      '.detectai-signal-tag {',
-      '  background: rgba(255,255,255,0.1);',
-      '  color: #94a3b8;',
-      '  font-size: 11px;',
-      '  padding: 2px 6px;',
-      '  border-radius: 3px;',
-      '  white-space: nowrap;',
-      '}',
-    ].join('\n');
-
-    (document.head || document.documentElement).appendChild(style);
-  }
-
   // ─── INITIALIZATION ───────────────────────────────────────────────────────────
 
   async function init() {
@@ -1343,7 +1246,6 @@
       return;
     }
 
-    injectStyles();
     createFab();
     resetFabStats();
     updateFabDebugAffordance();
@@ -1366,6 +1268,14 @@
     if (settings.apiBackend === 'ollama') {
       chrome.runtime.sendMessage({ type: 'PRELOAD' }).catch(() => {});
       logDebug('info', 'preloading Ollama model…');
+    }
+
+    // Honor "Auto-scan on page load": when off, stay idle until the user clicks
+    // "Scan Now" in the popup (the RESCAN handler starts everything).
+    if (settings.autoScan === false) {
+      logDebug('info', 'auto-scan disabled — waiting for manual scan');
+      applyFabState('idle');
+      return;
     }
 
     const ids = extractParagraphs(getScanRoot());

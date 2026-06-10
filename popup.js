@@ -36,11 +36,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     settings.enabled = toggle.checked;
     try {
       await chrome.storage.local.set({ detectai_settings: settings });
-      // Notify all content scripts
-      const tabs = await chrome.tabs.query({ url: ['http://*/*', 'https://*/*'] });
-      for (const t of tabs) {
-        chrome.tabs.sendMessage(t.id, { type: 'SETTINGS_CHANGED', settings }).catch(() => {});
-      }
+      // Route through the background: it refreshes the Ollama CORS rule and
+      // re-broadcasts SETTINGS_CHANGED to every tab's content script.
+      await chrome.runtime.sendMessage({ type: 'SETTINGS_CHANGED', settings });
     } catch (e) {
       // Extension context may be unavailable on restricted pages; ignore
     }
@@ -159,7 +157,7 @@ function renderState(settings, tabState, isConfigured) {
       document.getElementById('label-ai').textContent    = aiPct    + '% AI';
 
       elResults.style.display = 'block';
-      renderResultsList(tabState.results || []);
+      renderResultsList(tabState.results || [], settings.detectionThreshold ?? 0.70);
     } else {
       elResults.style.display = 'none';
     }
@@ -168,12 +166,14 @@ function renderState(settings, tabState, isConfigured) {
 
 /* ── renderResultsList ────────────────────────────────────────
    Shows top-5 AI-detected paragraphs sorted by confidence desc.
+   Uses the same threshold rule as the on-page outlines and the
+   aiCount, so the list always matches what is highlighted.
 ─────────────────────────────────────────────────────────────── */
-function renderResultsList(results) {
+function renderResultsList(results, threshold) {
   const list = document.getElementById('results-list');
 
   const aiResults = results
-    .filter(r => r.label === 'ai')
+    .filter(r => r.label !== 'skip' && r.label !== 'insufficient' && r.confidence >= threshold)
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, 5);
 

@@ -48,7 +48,7 @@ function populateForm(settings) {
   document.getElementById('ollama-model').value = settings.ollamaModel || 'qwen2.5:7b';
 
   // Threshold slider
-  const thresholdPct = Math.round((settings.detectionThreshold ?? 0.65) * 100);
+  const thresholdPct = Math.round((settings.detectionThreshold ?? 0.70) * 100);
   const slider = document.getElementById('threshold');
   slider.value = thresholdPct;
   document.getElementById('threshold-display').textContent = thresholdPct + '%';
@@ -243,12 +243,9 @@ async function saveSettings() {
   try {
     await chrome.storage.local.set({ detectai_settings: settings });
 
-    // Broadcast updated settings to all content scripts
-    const tabs = await chrome.tabs.query({ url: ['http://*/*', 'https://*/*'] });
-    const broadcast = tabs.map(tab =>
-      chrome.tabs.sendMessage(tab.id, { type: 'SETTINGS_CHANGED', settings }).catch(() => {})
-    );
-    await Promise.allSettled(broadcast);
+    // Route through the background: it refreshes the Ollama CORS rule for a
+    // possibly-changed host and re-broadcasts to every tab's content script.
+    await chrome.runtime.sendMessage({ type: 'SETTINGS_CHANGED', settings }).catch(() => {});
 
     showToast('Settings saved!');
   } catch (e) {

@@ -375,7 +375,7 @@
       anthropicApiKey: apiKeyInput ? apiKeyInput.value.trim() : '',
       ollamaUrl: ollamaUrlInput ? ollamaUrlInput.value.trim() : 'http://localhost:11434',
       ollamaModel: ollamaModelInput ? ollamaModelInput.value.trim() : 'qwen2.5:7b',
-      detectionThreshold: isNaN(threshold) ? 0.65 : threshold,
+      detectionThreshold: isNaN(threshold) ? 0.70 : threshold,
       autoScan: finalAutoScan,
       enabled: true,
       showReasoning: showReasoning,

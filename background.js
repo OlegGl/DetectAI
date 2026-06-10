@@ -176,6 +176,7 @@ migrateSettings().then(() => getSettings()).then(ensureOllamaCorsRule).catch(() 
 // ---------------------------------------------------------------------------
 
 chrome.tabs.onRemoved.addListener((tabId) => {
+  tabWriteLocks.delete(tabId);
   clearTabState(tabId).catch((err) =>
     console.error('[DetectAI] clearTabState error on remove:', err)
   );
@@ -233,8 +234,12 @@ async function appendResults(tabId, url, newResults, settings) {
       totalScanned: 0,
     };
 
-    const merged = [...(existing.results || []), ...newResults];
-    const threshold = settings.detectionThreshold != null ? settings.detectionThreshold : 0.65;
+    // Merge keyed by id so a re-sent batch (content-script retry after a lost
+    // response, interaction rescan) overwrites rather than double-counts.
+    const byId = new Map((existing.results || []).map((r) => [r.id, r]));
+    for (const r of newResults) byId.set(r.id, r);
+    const merged = [...byId.values()];
+    const threshold = settings.detectionThreshold != null ? settings.detectionThreshold : 0.70;
 
     const totalScanned = merged.filter(
       (r) => r.label !== 'skip' && r.label !== 'insufficient'
@@ -447,8 +452,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // ------------------------------------------------------------------
         case 'SETTINGS_CHANGED': {
-          // Broadcast updated settings to all active tabs so content scripts
-          // can re-evaluate overlays without a full page reload.
+          // Refresh the CORS rule for a possibly-changed Ollama host before the
+          // next scan, then broadcast to all tabs so content scripts re-evaluate
+          // overlays without a full page reload.
+          await ensureOllamaCorsRule(message.settings);
+
           const tabs = await chrome.tabs.query({});
           for (const tab of tabs) {
             if (tab.id !== undefined) {
