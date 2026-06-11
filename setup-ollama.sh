@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # DetectAI — Ollama Setup Script for macOS
-# Installs Ollama, pulls gemma4, configures CORS for Chrome extensions,
+# Installs Ollama, pulls qwen2.5:7b, configures CORS for Chrome extensions,
 # and wires up the DetectAI extension to use it automatically.
 #
 # Usage:  chmod +x setup-ollama.sh && ./setup-ollama.sh
@@ -25,7 +25,7 @@ info()  { echo -e "  ${CYAN}→ $*${NC}"; }
 die()   { echo -e "\n${RED}${BOLD}✗ ERROR: $*${NC}" >&2; exit 1; }
 
 # ─── Config ───────────────────────────────────────────────────────────────────
-OLLAMA_MODEL="gemma4"
+OLLAMA_MODEL="qwen2.5:7b"
 OLLAMA_URL="http://localhost:11434"
 # Allow any Chrome extension to call Ollama (required for the extension to work)
 OLLAMA_ORIGINS="chrome-extension://*"
@@ -51,10 +51,10 @@ MACOS_VERSION=$(sw_vers -productVersion)
 ARCH=$(uname -m)
 ok "macOS $MACOS_VERSION ($ARCH)"
 
-# gemma4 is large — check available disk space (need at least 6 GB)
+# qwen2.5:7b needs ~5 GB on disk
 AVAILABLE_GB=$(df -g "$HOME" | awk 'NR==2 {print $4}')
 if [[ "$AVAILABLE_GB" -lt 6 ]]; then
-  warn "Low disk space: ${AVAILABLE_GB}GB free. gemma4 requires ~5–6GB. Continuing anyway…"
+  warn "Low disk space: ${AVAILABLE_GB}GB free. qwen2.5:7b requires ~5GB. Continuing anyway…"
 else
   ok "Disk space: ${AVAILABLE_GB}GB available"
 fi
@@ -275,7 +275,7 @@ if [[ -z "$FOUND_PLIST" ]]; then
   done
 fi
 
-# ─── 6. Pull gemma4 model ─────────────────────────────────────────────────────
+# ─── 6. Pull qwen2.5:7b model ─────────────────────────────────────────────────────
 step "Pulling $OLLAMA_MODEL model"
 
 # Check if model is already present
@@ -283,7 +283,7 @@ if ollama list 2>/dev/null | grep -q "^${OLLAMA_MODEL}"; then
   ok "$OLLAMA_MODEL is already downloaded"
 else
   info "Downloading $OLLAMA_MODEL — this may take several minutes depending on your connection…"
-  info "gemma4 is ~5–6GB. Progress is shown below."
+  info "qwen2.5:7b is ~4.7GB. Progress is shown below."
   echo ""
 
   # Pull with full output so the user sees progress
@@ -291,7 +291,7 @@ else
     echo ""
     warn "ollama pull $OLLAMA_MODEL failed."
     info "This could mean:"
-    info "  • The model name 'gemma4' is not yet in the Ollama library"
+    info "  • The model name 'qwen2.5:7b' was not found in the Ollama library"
     info "  • Network issue"
     echo ""
     info "Available models with 'gemma' in the name:"
@@ -302,7 +302,7 @@ else
       OLLAMA_MODEL="$ALT_MODEL"
       ollama pull "$OLLAMA_MODEL" || die "Failed to pull $OLLAMA_MODEL. Check your internet connection."
     else
-      warn "Skipping model pull. You can run 'ollama pull gemma4' manually later."
+      warn "Skipping model pull. You can run 'ollama pull qwen2.5:7b' manually later."
     fi
   fi
 
@@ -366,7 +366,7 @@ update_defaults() {
   sed -i '' "s|apiBackend: 'anthropic'|apiBackend: 'ollama'|g" "$file"
   sed -i '' 's|apiBackend: "anthropic"|apiBackend: "ollama"|g' "$file"
 
-  # Set ollamaModel to gemma4
+  # Set ollamaModel to qwen2.5:7b
   sed -i '' "s|ollamaModel: '[^']*'|ollamaModel: '$OLLAMA_MODEL'|g" "$file"
   sed -i '' "s|ollamaModel: \"[^\"]*\"|ollamaModel: \"$OLLAMA_MODEL\"|g" "$file"
 
@@ -451,7 +451,7 @@ echo -e "${BOLD}╠════════════════════�
 echo -e "${BOLD}║  Useful commands:                                         ║${NC}"
 echo -e "${BOLD}║${NC}  ${CYAN}ollama list${NC}                 — see installed models              ${BOLD}║${NC}"
 echo -e "${BOLD}║${NC}  ${CYAN}ollama ps${NC}                   — see running models                ${BOLD}║${NC}"
-echo -e "${BOLD}║${NC}  ${CYAN}ollama pull gemma4${NC}           — re-download model                ${BOLD}║${NC}"
+echo -e "${BOLD}║${NC}  ${CYAN}ollama pull qwen2.5:7b${NC}           — re-download model                ${BOLD}║${NC}"
 echo -e "${BOLD}║${NC}  ${CYAN}tail -f /tmp/ollama-detectai.log${NC} — view Ollama logs           ${BOLD}║${NC}"
 echo -e "${BOLD}╚═══════════════════════════════════════════════════════════╝${NC}"
 echo ""
